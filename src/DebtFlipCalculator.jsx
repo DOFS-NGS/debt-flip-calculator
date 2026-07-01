@@ -420,7 +420,7 @@ export default function DebtFlipCalculator() {
   const submitToGHL = async () => {
     setSubmitting(true);
     try {
-      await fetch("https://services.leadconnectorhq.com/hooks/LIO2RKxENzW5WOerlkFr/webhook-trigger/7dc5ef32-bb3e-451a-a68c-2e6afe866343", {
+      await fetch("https://services.leadconnectorhq.com/hooks/LIO2RKxENzW5WOerlkFr/webhook-trigger/ec381483-c089-447f-8bd6-2f1325f385af", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
