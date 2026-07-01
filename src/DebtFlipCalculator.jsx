@@ -370,6 +370,7 @@ export default function DebtFlipCalculator() {
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (containerRef.current) containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
@@ -415,6 +416,32 @@ export default function DebtFlipCalculator() {
     transform: revealPhase >= phase ? "translateY(0)" : "translateY(20px)",
     transition: "all 0.7s cubic-bezier(0.34,1.56,0.64,1)",
   });
+
+  const submitToGHL = async () => {
+    setSubmitting(true);
+    try {
+      await fetch("https://services.leadconnectorhq.com/hooks/LIO2RKxENzW5WOerlkFr/webhook-trigger/7dc5ef32-bb3e-451a-a68c-2e6afe866343", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: firstName,
+          email: email,
+          phone: phone,
+          mortgage_balance: mBal,
+          total_debt: totalAllBal,
+          interest_saved: intSaved > 0 ? Math.round(intSaved) : 0,
+          years_saved: yrsSaved > 0 ? fmtYears(yrsSaved) : "0",
+          total_monthly_payment: totalAllPmt,
+          consolidated_balance: consolidatedBal,
+          flip_payoff_years: fmtYears(flipYrs),
+        }),
+      });
+    } catch (e) {
+      // Silently continue — don't block the user from seeing results
+    }
+    setSubmitting(false);
+    setStep(3);
+  };
 
   const reset = () => {
     setStep(0); setMortgageBalance(""); setMortgageRate(""); setMortgageTerm("");
@@ -559,7 +586,9 @@ export default function DebtFlipCalculator() {
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
                   <Btn variant="secondary" onClick={() => setStep(1)}>← Back</Btn>
-                  <Btn onClick={() => setStep(3)} disabled={!s2ok}>Show My Debt Flip ✨</Btn>
+                  <Btn onClick={submitToGHL} disabled={!s2ok || submitting}>
+                    {submitting ? "Preparing your projection..." : "Show My Debt Flip ✨"}
+                  </Btn>
                 </div>
               </div>
             )}
@@ -662,7 +691,7 @@ export default function DebtFlipCalculator() {
                       Book a free, no-pressure Discovery Call. We'll review your full picture and map out your personalised plan.
                     </p>
                     <a
-                      href="#book-call"
+                      href="https://api.leadconnectorhq.com/widget/bookings/discovery-call-booking-01" target="_blank" rel="noopener noreferrer"
                       style={{
                         display: "inline-block",
                         padding: "16px 36px",
