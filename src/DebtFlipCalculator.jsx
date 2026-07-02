@@ -389,7 +389,7 @@ export default function DebtFlipCalculator() {
   // Validation
   const s0ok = Number(mortgageBalance) > 0 && Number(mortgageRate) > 0 && Number(mortgageTerm) > 0 && Number(mortgagePayment) > 0;
   const s1ok = debts.every((d) => Number(d.balance) > 0 && Number(d.rate) >= 0 && Number(d.payment) > 0);
-  const s2ok = firstName.trim() && email.trim() && /\S+@\S+\.\S+/.test(email);
+  const s2ok = firstName.trim() && email.trim() && /\S+@\S+\.\S+/.test(email) && phone.trim().length >= 8;
 
   // Calculations
   const mBal = Number(mortgageBalance) || 0;
@@ -420,21 +420,23 @@ export default function DebtFlipCalculator() {
   const submitToGHL = async () => {
     setSubmitting(true);
     try {
+      const params = new URLSearchParams({
+        first_name: firstName,
+        email: email,
+        phone: phone,
+        mortgage_balance: String(mBal),
+        total_debt: String(totalAllBal),
+        interest_saved: intSaved > 0 ? String(Math.round(intSaved)) : "0",
+        years_saved: yrsSaved > 0 ? fmtYears(yrsSaved) : "0",
+        total_monthly_payment: String(totalAllPmt),
+        consolidated_balance: String(consolidatedBal),
+        flip_payoff_years: fmtYears(flipYrs),
+      });
       await fetch("https://services.leadconnectorhq.com/hooks/LIO2RKxENzW5WOerlkFr/webhook-trigger/ec381483-c089-447f-8bd6-2f1325f385af", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          first_name: firstName,
-          email: email,
-          phone: phone,
-          mortgage_balance: mBal,
-          total_debt: totalAllBal,
-          interest_saved: intSaved > 0 ? Math.round(intSaved) : 0,
-          years_saved: yrsSaved > 0 ? fmtYears(yrsSaved) : "0",
-          total_monthly_payment: totalAllPmt,
-          consolidated_balance: consolidatedBal,
-          flip_payoff_years: fmtYears(flipYrs),
-        }),
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: params.toString(),
       });
     } catch (e) {
       // Silently continue — don't block the user from seeing results
@@ -578,7 +580,7 @@ export default function DebtFlipCalculator() {
                 </p>
                 <InputField label="First Name" value={firstName} onChange={setFirstName} placeholder="Sarah" />
                 <InputField label="Email" type="email" value={email} onChange={setEmail} placeholder="sarah@email.com" />
-                <InputField label="Phone (optional)" type="tel" value={phone} onChange={setPhone} placeholder="04XX XXX XXX" />
+                <InputField label="Phone" type="tel" value={phone} onChange={setPhone} placeholder="04XX XXX XXX" />
                 <div style={{ background: C.greenPale, borderRadius: 8, padding: 14, marginBottom: 24, border: `1px solid ${C.greenMist}` }}>
                   <p style={{ fontSize: 13, color: C.gray600, fontFamily: FONT, lineHeight: 1.6, margin: 0 }}>
                     🔒 Your details are kept private and only used to send your projection and offer support. No spam, ever.
