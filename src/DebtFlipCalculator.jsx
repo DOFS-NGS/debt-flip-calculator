@@ -368,6 +368,7 @@ export default function DebtFlipCalculator() {
   const [mortgagePayment, setMortgagePayment] = useState("");
   const [debts, setDebts] = useState([{ ...EMPTY_DEBT }]);
   const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -389,7 +390,7 @@ export default function DebtFlipCalculator() {
   // Validation
   const s0ok = Number(mortgageBalance) > 0 && Number(mortgageRate) > 0 && Number(mortgageTerm) > 0 && Number(mortgagePayment) > 0;
   const s1ok = debts.every((d) => Number(d.balance) > 0 && Number(d.rate) >= 0 && Number(d.payment) > 0);
-  const s2ok = firstName.trim() && email.trim() && /\S+@\S+\.\S+/.test(email) && phone.trim().length >= 8;
+  const s2ok = firstName.trim() && lastName.trim() && email.trim() && /\S+@\S+\.\S+/.test(email) && phone.trim().length >= 8;
 
   // Calculations
   const mBal = Number(mortgageBalance) || 0;
@@ -422,6 +423,7 @@ export default function DebtFlipCalculator() {
     try {
       const params = new URLSearchParams({
         first_name: firstName,
+        last_name: lastName,
         email: email,
         phone: phone,
         mortgage_balance: String(mBal),
@@ -447,7 +449,7 @@ export default function DebtFlipCalculator() {
 
   const reset = () => {
     setStep(0); setMortgageBalance(""); setMortgageRate(""); setMortgageTerm("");
-    setMortgagePayment(""); setDebts([{ ...EMPTY_DEBT }]); setFirstName(""); setEmail(""); setPhone("");
+    setMortgagePayment(""); setDebts([{ ...EMPTY_DEBT }]); setFirstName(""); setLastName(""); setEmail(""); setPhone("");
   };
 
   return (
@@ -579,6 +581,7 @@ export default function DebtFlipCalculator() {
                   We'll prepare your personalised Debt Flip projection. Enter your details below so we can send you a copy and be available if you have questions.
                 </p>
                 <InputField label="First Name" value={firstName} onChange={setFirstName} placeholder="Sarah" />
+                <InputField label="Last Name" value={lastName} onChange={setLastName} placeholder="Smith" />
                 <InputField label="Email" type="email" value={email} onChange={setEmail} placeholder="sarah@email.com" />
                 <InputField label="Phone" type="tel" value={phone} onChange={setPhone} placeholder="04XX XXX XXX" />
                 <div style={{ background: C.greenPale, borderRadius: 8, padding: 14, marginBottom: 24, border: `1px solid ${C.greenMist}` }}>
@@ -693,7 +696,7 @@ export default function DebtFlipCalculator() {
                       Book a free, no-pressure Discovery Call. We'll review your full picture and map out your personalised plan.
                     </p>
                     <a
-                      href="https://api.leadconnectorhq.com/widget/bookings/discovery-call-booking-01" target="_blank" rel="noopener noreferrer"
+                      href={`https://api.leadconnectorhq.com/widget/bookings/discovery-call-booking-01?first_name=${encodeURIComponent(firstName)}&last_name=${encodeURIComponent(lastName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`} target="_blank" rel="noopener noreferrer"
                       style={{
                         display: "inline-block",
                         padding: "16px 36px",
