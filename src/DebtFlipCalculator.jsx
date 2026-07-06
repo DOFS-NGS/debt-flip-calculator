@@ -127,8 +127,22 @@ function ProgressBar({ step }) {
   );
 }
 
-function InputField({ label, prefix, suffix, type = "text", value, onChange, placeholder, inputStep, helperText }) {
+function InputField({ label, prefix, suffix, type = "text", value, onChange, placeholder, inputStep, helperText, isCurrency = false }) {
   const [focused, setFocused] = useState(false);
+
+  const displayValue = isCurrency && value && !focused
+    ? Number(value).toLocaleString("en-AU")
+    : value;
+
+  const handleChange = (e) => {
+    if (isCurrency) {
+      const raw = e.target.value.replace(/,/g, "");
+      if (raw === "" || /^\d*\.?\d*$/.test(raw)) onChange(raw);
+    } else {
+      onChange(e.target.value);
+    }
+  };
+
   return (
     <div style={{ marginBottom: 20 }}>
       <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: C.gray800, marginBottom: 6, fontFamily: FONT }}>
@@ -151,9 +165,10 @@ function InputField({ label, prefix, suffix, type = "text", value, onChange, pla
           </span>
         )}
         <input
-          type={type}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
+          type={isCurrency ? "text" : type}
+          inputMode={isCurrency ? "decimal" : undefined}
+          value={displayValue}
+          onChange={handleChange}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           placeholder={placeholder}
@@ -269,9 +284,9 @@ function DebtCard({ debt, index, onUpdate, onRemove, canRemove }) {
         {canRemove && <Btn variant="danger" onClick={onRemove}>Remove</Btn>}
       </div>
       <SelectField label="Debt Type" value={debt.type} onChange={(v) => onUpdate({ ...debt, type: v })} options={typeOptions} />
-      <InputField label="Balance Owing" prefix="$" type="number" value={debt.balance} onChange={(v) => onUpdate({ ...debt, balance: v })} placeholder="5,000" />
+      <InputField label="Balance Owing" prefix="$" isCurrency value={debt.balance} onChange={(v) => onUpdate({ ...debt, balance: v })} placeholder="5,000" />
       <InputField label="Interest Rate" suffix="% p.a." type="number" value={debt.rate} onChange={(v) => onUpdate({ ...debt, rate: v })} placeholder="18.0" inputStep="0.1" />
-      <InputField label="Monthly Payment" prefix="$" type="number" value={debt.payment} onChange={(v) => onUpdate({ ...debt, payment: v })} placeholder="200" />
+      <InputField label="Monthly Payment" prefix="$" isCurrency value={debt.payment} onChange={(v) => onUpdate({ ...debt, payment: v })} placeholder="200" />
     </div>
   );
 }
@@ -426,12 +441,12 @@ export default function DebtFlipCalculator() {
         last_name: lastName,
         email: email,
         phone: phone,
-        mortgage_balance: String(mBal),
-        total_debt: String(totalAllBal),
-        interest_saved: intSaved > 0 ? String(Math.round(intSaved)) : "0",
+        mortgage_balance: fmt(mBal),
+        total_debt: fmt(totalAllBal),
+        interest_saved: intSaved > 0 ? fmt(Math.round(intSaved)) : "$0",
         years_saved: yrsSaved > 0 ? fmtYears(yrsSaved) : "0",
-        total_monthly_payment: String(totalAllPmt),
-        consolidated_balance: String(consolidatedBal),
+        total_monthly_payment: fmt(totalAllPmt),
+        consolidated_balance: fmt(consolidatedBal),
         flip_payoff_years: fmtYears(flipYrs),
       });
       await fetch("https://services.leadconnectorhq.com/hooks/LIO2RKxENzW5WOerlkFr/webhook-trigger/ec381483-c089-447f-8bd6-2f1325f385af", {
@@ -517,10 +532,10 @@ export default function DebtFlipCalculator() {
                 <p style={{ fontSize: 14, color: C.gray600, marginBottom: 24, fontFamily: FONT, lineHeight: 1.55 }}>
                   Let's start with your existing mortgage. Don't worry about being exact — close enough works.
                 </p>
-                <InputField label="Current Mortgage Balance" prefix="$" type="number" value={mortgageBalance} onChange={setMortgageBalance} placeholder="450,000" />
+                <InputField label="Current Mortgage Balance" prefix="$" isCurrency value={mortgageBalance} onChange={setMortgageBalance} placeholder="450,000" />
                 <InputField label="Interest Rate" suffix="% p.a." type="number" value={mortgageRate} onChange={setMortgageRate} placeholder="6.2" inputStep="0.1" />
                 <InputField label="Remaining Term" suffix="years" type="number" value={mortgageTerm} onChange={setMortgageTerm} placeholder="25" />
-                <InputField label="Current Monthly Repayment" prefix="$" type="number" value={mortgagePayment} onChange={setMortgagePayment} placeholder="2,950" />
+                <InputField label="Current Monthly Repayment" prefix="$" isCurrency value={mortgagePayment} onChange={setMortgagePayment} placeholder="2,950" />
                 <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
                   <Btn onClick={() => setStep(1)} disabled={!s0ok}>Next → Your Debts</Btn>
                 </div>
