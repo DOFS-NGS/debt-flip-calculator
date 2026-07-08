@@ -405,7 +405,9 @@ export default function DebtFlipCalculator() {
   // Validation
   const s0ok = Number(mortgageBalance) > 0 && Number(mortgageRate) > 0 && Number(mortgageTerm) > 0 && Number(mortgagePayment) > 0;
   const s1ok = debts.every((d) => Number(d.balance) > 0 && Number(d.rate) >= 0 && Number(d.payment) > 0);
-  const s2ok = firstName.trim() && lastName.trim() && email.trim() && /\S+@\S+\.\S+/.test(email) && phone.trim().length >= 8;
+  const validPhone = phone.replace(/[\s\-()]/g, "").length >= 8 && /^[\d\s\-()+ ]+$/.test(phone);
+  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+  const s2ok = firstName.trim().length >= 2 && lastName.trim().length >= 2 && validEmail && validPhone;
 
   // Calculations
   const mBal = Number(mortgageBalance) || 0;
