@@ -26,6 +26,11 @@ const BOOKING_MODE = "redirect";
 // Business name for consent copy — replace with your registered entity name
 const BUSINESS_NAME = "DO. Financial Services";
 
+// Consolidated loan rate used for Debt Flip projections (p.a.)
+// This is a current competitive market rate and is stated in the assumptions disclosure.
+// Update this value as market rates change.
+const FLIP_RATE = 6.14;
+
 // Base URL for results permalink
 const PERMALINK_BASE = typeof window !== "undefined" ? window.location.origin + window.location.pathname : "";
 
@@ -329,10 +334,10 @@ export default function DebtFlipCalculator() {
   const currentMortgageInt = calcTotalInterest(mBal, mRate, mPmt);
   const totalCurrentInt = currentMortgageInt + totalDebtInt;
   const consolidatedBal = mBal + totalDebtBal;
-  const consolidatedMin = calcMonthlyPayment(consolidatedBal, mRate, mTerm);
+  const consolidatedMin = calcMonthlyPayment(consolidatedBal, FLIP_RATE, mTerm);
   const flipPmt = totalAllPmt;
-  const flipYrs = calcYearsToPayoff(consolidatedBal, mRate, flipPmt);
-  const flipInt = calcTotalInterest(consolidatedBal, mRate, flipPmt);
+  const flipYrs = calcYearsToPayoff(consolidatedBal, FLIP_RATE, flipPmt);
+  const flipInt = calcTotalInterest(consolidatedBal, FLIP_RATE, flipPmt);
   const intSaved = totalCurrentInt - flipInt;
   const yrsSaved = mTerm - flipYrs;
   const flipDate = debtFreeDate(flipYrs);
@@ -344,8 +349,8 @@ export default function DebtFlipCalculator() {
   // Slider
   const sliderMax = 1000;
   const adjustedPmt = flipPmt + sliderValue;
-  const adjustedYrs = calcYearsToPayoff(consolidatedBal, mRate, adjustedPmt);
-  const adjustedInt = calcTotalInterest(consolidatedBal, mRate, adjustedPmt);
+  const adjustedYrs = calcYearsToPayoff(consolidatedBal, FLIP_RATE, adjustedPmt);
+  const adjustedInt = calcTotalInterest(consolidatedBal, FLIP_RATE, adjustedPmt);
   const adjustedIntSaved = totalCurrentInt - adjustedInt;
   const adjustedYrsSaved = mTerm - adjustedYrs;
 
@@ -354,7 +359,7 @@ export default function DebtFlipCalculator() {
     const bal = Number(d.balance) || 0, rate = Number(d.rate) || 0;
     return s + bal * (rate / 100 / 12);
   }, 0) + mBal * (mRate / 100 / 12);
-  const flipFirstMonthInt = consolidatedBal * (mRate / 100 / 12);
+  const flipFirstMonthInt = consolidatedBal * (FLIP_RATE / 100 / 12);
   const monthlyCostOfWaiting = Math.round(currentFirstMonthInt - flipFirstMonthInt);
 
   useEffect(() => { if (step === 4) setSliderValue(0); }, [step]);
@@ -411,6 +416,7 @@ export default function DebtFlipCalculator() {
       debtfree_date: flipDate,
       combined_repayment_raw: String(totalAllPmt),
       consolidated_balance_raw: String(consolidatedBal),
+      consolidated_rate: String(FLIP_RATE),
       consolidated_min_raw: String(Math.round(consolidatedMin)),
       monthly_cost_of_waiting: fmt(monthlyCostOfWaiting),
       monthly_cost_of_waiting_raw: String(monthlyCostOfWaiting),
@@ -540,7 +546,7 @@ export default function DebtFlipCalculator() {
 
                 {/* Disclaimer applies here too */}
                 <p style={{ fontSize: 11, color: C.gray400, fontFamily: FONT, lineHeight: 1.6, marginBottom: 24 }}>
-                  This estimate is based on the numbers you've entered and assumes consolidation at your current mortgage rate. Actual outcomes depend on individual circumstances and lender approval. This is not credit advice.
+                  This estimate is based on the numbers you've entered and assumes consolidation at a competitive home loan rate of {FLIP_RATE}% p.a. Actual outcomes depend on individual circumstances and lender approval. This is not credit advice.
                 </p>
 
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
@@ -727,7 +733,7 @@ export default function DebtFlipCalculator() {
                     <p style={{ fontSize: 12, fontWeight: 600, color: C.gray600, fontFamily: FONT, margin: "0 0 6px 0" }}>What these numbers assume</p>
                     {/* ── DISCLAIMER PLACEHOLDER — replace with final compliance wording ── */}
                     <p style={{ fontSize: 11, color: C.gray400, fontFamily: FONT, lineHeight: 1.7, margin: 0 }}>
-                      These projections don't include refinancing costs, lender fees, or Lenders Mortgage Insurance. They assume a single fixed interest rate with no rate changes over the life of the loan, and consistent repayment amounts. Results are estimates only and any consolidation is subject to lender approval and individual assessment. This is not credit advice.
+                      These projections assume a consolidated home loan rate of {FLIP_RATE}% p.a., which reflects a current competitive market rate and may differ from the rate you are offered. They don't include refinancing costs, lender fees, or Lenders Mortgage Insurance. They assume a single fixed interest rate with no rate changes over the life of the loan, and consistent repayment amounts. Results are estimates only and any consolidation is subject to lender approval and individual assessment. This is not credit advice.
                     </p>
                   </div>
                 </div>
