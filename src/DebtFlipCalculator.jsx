@@ -712,7 +712,7 @@ export default function DebtFlipCalculator() {
                       Ready to see if these numbers hold up?
                     </h3>
                     <p style={{ fontSize: 14, color: "#ffffffcc", fontFamily: FONT, margin: "0 0 20px 0", lineHeight: 1.55 }}>
-                      Book a free Debt Flip Review. We'll check your projection against actual lender rates and map out your options.
+                      Book a free Discovery Call. We'll check your projection against actual lender rates and map out your options.
                     </p>
                     {/* ── BOOKING CTA — supports redirect or embed mode ── */}
                     <a
