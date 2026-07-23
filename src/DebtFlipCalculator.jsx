@@ -699,17 +699,6 @@ export default function DebtFlipCalculator() {
                   </div>
                 </div>
 
-                {/* ─── Cost of Waiting ─── */}
-                <div style={fadeIn(3)}>
-                  {monthlyCostOfWaiting > 0 && (
-                    <div style={{ background: C.white, border: `1.5px solid ${C.creamDark}`, borderRadius: 10, padding: 16, textAlign: "center", marginBottom: 18 }}>
-                      <p style={{ fontSize: 14, color: C.gray800, fontFamily: FONT, lineHeight: 1.55, margin: 0 }}>
-                        Every month you wait costs you roughly <span style={{ fontWeight: 800, color: C.red }}>{fmt(monthlyCostOfWaiting)}</span> in interest you don't need to be paying.
-                      </p>
-                    </div>
-                  )}
-                </div>
-
                 {/* ─── Single CTA: Booking ─── */}
                 <div style={fadeIn(4)}>
                   <div style={{ background: C.green, borderRadius: 12, padding: 28, textAlign: "center", marginBottom: 18 }}>
@@ -725,7 +714,7 @@ export default function DebtFlipCalculator() {
                       target="_blank" rel="noopener noreferrer"
                       onClick={() => trackEvent("BookingClicked")}
                       style={{ display: "inline-block", padding: "16px 36px", background: C.white, color: C.green, borderRadius: 8, fontSize: 16, fontWeight: 700, fontFamily: FONT, textDecoration: "none" }}>
-                      Book Your Free Debt Flip Review →
+                      Book Your Free Discovery Call →
                     </a>
                   </div>
 
